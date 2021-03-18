@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import androidx.multidex.MultiDexApplication
+import com.example.myapplication.injection.preferencesModule
 import com.example.myapplication.injection.remoteDataModule
 import com.example.myapplication.injection.repositoryModule
 import com.example.myapplication.injection.viewModelModule
@@ -15,9 +16,11 @@ class App : MultiDexApplication() {
             androidLogger()
             androidContext(this@App)
             modules(
-            remoteDataModule,
-            repositoryModule,
-            viewModelModule)
+                remoteDataModule,
+                repositoryModule,
+                viewModelModule,
+                preferencesModule
+            )
         }
 
     }

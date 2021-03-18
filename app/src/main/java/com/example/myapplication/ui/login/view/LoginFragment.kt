@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.login.view
 
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -9,16 +10,23 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentLoginBinding
+import com.example.myapplication.ui.gallery.view.GalleryFragment
 import com.example.myapplication.ui.login.viewmodel.LoginViewModel
+import com.example.myapplication.utils.Const.Companion.APP_PREFS_TOKEN
 import com.example.myapplication.utils.Status
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : Fragment() {
 
     private val viewModel: LoginViewModel by viewModel()
     private lateinit var binding: FragmentLoginBinding
+    private val preferences: SharedPreferences by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,7 +54,7 @@ class LoginFragment : Fragment() {
                 val uri: Uri = Uri.parse(url)
                 val chapter = uri.getQueryParameter("code")
                 if (chapter!=null){
-                    binding.buttonLogin.visibility=View.VISIBLE
+                    binding.progressBar.visibility=View.VISIBLE
 
                     setupObservers(getString(R.string.instagram_app_id).toLong(),
                         "2fcbe9b28fda739eee21ba4e8ac3db23",
@@ -75,12 +83,18 @@ class LoginFragment : Fragment() {
             it?.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
-                        //progressBar.visibility = View.GONE
-                        resource.data?.let { token -> println(token.access_token) }
+                        resource.data?.let { token ->
+                            val editor = preferences.edit()
+                            editor.putString(APP_PREFS_TOKEN,token.access_token)
+                            editor.apply()
+                            requireActivity().supportFragmentManager.commit {
+                                replace<GalleryFragment>(R.id.container)
+                                setReorderingAllowed(true)
+                                addToBackStack("login")
+                            }
+                        }
                     }
                     Status.ERROR -> {
-
-                        //progressBar.visibility = View.GONE
                         Log.d("LOGIN_ACTIVITY: ", it.message.toString())
                     }
                     Status.LOADING -> {

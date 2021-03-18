@@ -1,0 +1,137 @@
+package com.example.myapplication.ui.gallery.view
+
+import android.content.SharedPreferences
+import android.os.Build
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.annotation.RequiresApi
+import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.R
+import com.example.myapplication.data.model.Data
+import com.example.myapplication.data.model.Error
+import com.example.myapplication.databinding.FragmentGalleryBinding
+import com.example.myapplication.ui.detail.DetailFragment
+import com.example.myapplication.ui.gallery.view.GalleryAdapter.Companion.TYPE_DATA
+import com.example.myapplication.ui.gallery.viewmodel.GalleryViewModel
+import com.example.myapplication.utils.Const.Companion.APP_PREFS_TOKEN
+import com.example.myapplication.utils.Status
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
+
+
+class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
+
+    private val viewModel: GalleryViewModel by viewModel()
+    private lateinit var binding: FragmentGalleryBinding
+    private val preferences: SharedPreferences by inject()
+    private lateinit var adapter: GalleryAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentGalleryBinding.inflate(layoutInflater)
+        activity?.title = getString(R.string.title_gallery)
+
+        setupUI()
+
+        binding.swipe.setOnRefreshListener {
+            setupObservers(
+                preferences.getString(APP_PREFS_TOKEN, "").toString(),
+                "id,media_type,media_url,children{media_url,media_type}",
+                ""
+            )
+        }
+        setupObservers(
+            preferences.getString(APP_PREFS_TOKEN, "").toString(),
+            "id,media_type,media_url,children{media_url,media_type}",
+            ""
+        )
+
+        return binding.root
+    }
+
+    private fun setupUI() {
+        val gridLayoutManager = GridLayoutManager(context, 2)
+        gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return when (adapter.getItemViewType(position)) {
+                    TYPE_DATA -> 1
+                    else -> 2
+                }
+            }
+        }
+        binding.recyclerView.layoutManager = gridLayoutManager
+
+        adapter = GalleryAdapter(arrayListOf(), this)
+        binding.recyclerView.addItemDecoration(
+            DividerItemDecoration(
+                binding.recyclerView.context,
+                (binding.recyclerView.layoutManager as LinearLayoutManager).orientation
+            )
+        )
+        binding.recyclerView.adapter = adapter
+    }
+
+    private fun setupObservers(
+        token: String,
+        field: String,
+        after: String
+    ) {
+        viewModel.getGallery(token, field, after).observe(requireActivity(), {
+            it?.let { resource ->
+                when (resource.status) {
+                    Status.SUCCESS -> {
+                        binding.recyclerView.visibility = View.VISIBLE
+                        binding.progressBar.visibility = View.GONE
+                        binding.swipe.isRefreshing = false
+                        resource.data?.let { data ->
+                            println(data)
+                            adapter.apply {
+                                addMedia(it.data as List<Data>)
+                                notifyDataSetChanged()
+                            }
+                        }
+                    }
+                    Status.ERROR -> {
+                        binding.recyclerView.visibility = View.VISIBLE
+                        binding.swipe.isRefreshing = false
+                        //progressBar.visibility = View.GONE
+                        Log.d("GALLERY_FRAGMENT: ", (it.data as Error).error.type)
+                        if (it.data.error.type == "OAuthException") {
+                            requireActivity().onBackPressed()
+                        }
+                    }
+                    Status.LOADING -> {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
+                }
+            }
+        })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onItemClick(data: Data, imageView: ImageView) {
+
+        requireActivity().supportFragmentManager.commit {
+            val detailFragment=DetailFragment(data,imageView.transitionName)
+            replace(R.id.container,detailFragment)
+            setReorderingAllowed(true)
+            addSharedElement(imageView, ViewCompat.getTransitionName(imageView)!!)
+            addToBackStack("detail")
+        }
+    }
+
+}

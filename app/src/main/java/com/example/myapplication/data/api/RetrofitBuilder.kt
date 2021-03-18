@@ -1,6 +1,9 @@
 package com.example.myapplication.data.api
 
+import com.example.myapplication.data.api.login.ApiServiceLogin
+import com.example.myapplication.data.api.media.ApiServiceMedia
 import com.example.myapplication.utils.Const.Companion.AUTH_URL
+import com.example.myapplication.utils.Const.Companion.MEDIA_URL
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -10,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitBuilder {
 
-    fun getRetrofit(): Retrofit {
+    private fun getRetrofitAuth(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(AUTH_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
@@ -19,7 +22,16 @@ object RetrofitBuilder {
             .build()
     }
 
-    fun createOkHttpClient(): OkHttpClient {
+    private fun getRetrofitMedia(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(MEDIA_URL)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(createOkHttpClient())
+            .build()
+    }
+
+    private fun createOkHttpClient(): OkHttpClient {
         val httpLoggingInterceptor = HttpLoggingInterceptor()
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         return OkHttpClient.Builder()
@@ -29,5 +41,6 @@ object RetrofitBuilder {
             .build()
     }
 
-    val apiService: ApiService = getRetrofit().create(ApiService::class.java)
+    val apiServiceLogin: ApiServiceLogin = getRetrofitAuth().create(ApiServiceLogin::class.java)
+    val apiServiceMedia: ApiServiceMedia = getRetrofitMedia().create(ApiServiceMedia::class.java)
 }
