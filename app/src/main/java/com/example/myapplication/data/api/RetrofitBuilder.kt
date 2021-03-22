@@ -1,9 +1,8 @@
 package com.example.myapplication.data.api
 
+import com.example.myapplication.BuildConfig
 import com.example.myapplication.data.api.login.ApiServiceLogin
 import com.example.myapplication.data.api.media.ApiServiceMedia
-import com.example.myapplication.utils.Const.Companion.AUTH_URL
-import com.example.myapplication.utils.Const.Companion.MEDIA_URL
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -15,7 +14,7 @@ object RetrofitBuilder {
 
     private fun getRetrofitAuth(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(AUTH_URL)
+            .baseUrl(BuildConfig.AUTH_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(createOkHttpClient())
@@ -24,7 +23,7 @@ object RetrofitBuilder {
 
     private fun getRetrofitMedia(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(MEDIA_URL)
+            .baseUrl(BuildConfig.MEDIA_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(createOkHttpClient())

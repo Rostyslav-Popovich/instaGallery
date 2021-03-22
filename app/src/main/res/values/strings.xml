@@ -1,6 +1,4 @@
 <resources>
-    <string name="facebook_app_id">1433972743633299</string>
-    <string name="instagram_app_id">1057098534783422</string>
     <string name="app_name">My Application</string>
     <string name="txt_login">Login</string>
     <string name="title_gallery">Gallery</string>

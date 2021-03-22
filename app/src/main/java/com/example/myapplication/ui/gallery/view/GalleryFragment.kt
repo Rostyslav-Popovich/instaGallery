@@ -8,11 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
@@ -24,7 +25,7 @@ import com.example.myapplication.databinding.FragmentGalleryBinding
 import com.example.myapplication.ui.detail.DetailFragment
 import com.example.myapplication.ui.gallery.view.GalleryAdapter.Companion.TYPE_DATA
 import com.example.myapplication.ui.gallery.viewmodel.GalleryViewModel
-import com.example.myapplication.utils.Const.Companion.APP_PREFS_TOKEN
+import com.example.myapplication.utils.Const.APP_PREFS_TOKEN
 import com.example.myapplication.utils.Status
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -43,7 +44,6 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentGalleryBinding.inflate(layoutInflater)
-        activity?.title = getString(R.string.title_gallery)
 
         setupUI()
 
@@ -64,6 +64,7 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
     }
 
     private fun setupUI() {
+        (activity as AppCompatActivity?)!!.findViewById<TextView>(R.id.title).text = getString(R.string.title_gallery)
         val gridLayoutManager = GridLayoutManager(context, 2)
         gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
@@ -85,6 +86,7 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
         binding.recyclerView.adapter = adapter
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun setupObservers(
         token: String,
         field: String,
@@ -98,7 +100,6 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
                         binding.progressBar.visibility = View.GONE
                         binding.swipe.isRefreshing = false
                         resource.data?.let { data ->
-                            println(data)
                             adapter.apply {
                                 addMedia(it.data as List<Data>)
                                 notifyDataSetChanged()
