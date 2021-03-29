@@ -20,6 +20,7 @@ android {
         buildConfigField "String", "MEDIA_URL", '"https://graph.instagram.com/"'
         buildConfigField "String", "CLIENT_SECRET", '"2fcbe9b28fda739eee21ba4e8ac3db23"'
         buildConfigField "String", "INSTAGRAM_APP_ID", '"1057098534783422"'
+        buildConfigField "String", "SECURE_PREFS_FILE_KEY", '"com.example.myapplication.secure_preferences"'
         manifestPlaceholders = [FACEBOOK_APP_ID: "1433972743633299"]
     }
 

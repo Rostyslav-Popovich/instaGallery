@@ -1,12 +1,12 @@
 package com.example.myapplication.data.repository
 
-import com.example.myapplication.data.api.media.ApiHelperMedia
+import com.example.myapplication.data.model.Gallery
 
-class MediaRepository(private val apiHelperMedia: ApiHelperMedia) {
+interface MediaRepository {
 
     suspend fun getMediaList(
         token: String,
         field: String,
         after: String
-    ) = apiHelperMedia.getMediaList(token, field, after)
+    ): Gallery
 }

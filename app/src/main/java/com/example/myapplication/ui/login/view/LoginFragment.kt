@@ -67,7 +67,8 @@ class LoginFragment : Fragment() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                binding.progressBar.visibility = View.GONE
+                if (_binding!=null)
+                    binding.progressBar.visibility = View.GONE
             }
         }
     }
@@ -86,6 +87,8 @@ class LoginFragment : Fragment() {
         viewModel.liveData.observe(viewLifecycleOwner, {
             when (it.status) {
                 Status.SUCCESS -> {
+                    binding.webView.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
                     requireActivity().supportFragmentManager.commit {
                         replace<GalleryFragment>(R.id.container)
                         setReorderingAllowed(true)

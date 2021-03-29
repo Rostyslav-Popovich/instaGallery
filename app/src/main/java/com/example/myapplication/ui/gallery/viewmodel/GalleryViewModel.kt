@@ -4,13 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.example.myapplication.data.model.Data
 import com.example.myapplication.data.model.Error
-import com.example.myapplication.data.repository.MediaRepository
+import com.example.myapplication.data.repository.MediaRepositoryImpl
 import com.example.myapplication.utils.Resource
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import retrofit2.HttpException
 
-class GalleryViewModel(private val mediaRepository: MediaRepository) : ViewModel() {
+class GalleryViewModel(private val mediaRepository: MediaRepositoryImpl) : ViewModel() {
 
     fun getGallery(
         token: String,
@@ -19,12 +19,27 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : ViewModel
     ) = liveData(Dispatchers.IO) {
         emit(Resource.loading(data = null))
         try {
-            emit(Resource.success(data = getFilteredList(mediaRepository.getMediaList(token, field, after).data)))
+            emit(
+                Resource.success(
+                    data = getFilteredList(
+                        mediaRepository.getMediaList(
+                            token,
+                            field,
+                            after
+                        ).data
+                    )
+                )
+            )
         } catch (throwable: Throwable) {
             when (throwable) {
                 is HttpException -> {
                     val errorResponse = convertErrorBody(throwable)
-                    emit(Resource.error(data = errorResponse, message = throwable.message ?: "Error Occurred!"))
+                    emit(
+                        Resource.error(
+                            data = errorResponse,
+                            message = throwable.message ?: "Error Occurred!"
+                        )
+                    )
                 }
             }
 
@@ -47,7 +62,8 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : ViewModel
         else {
             val filterList = arrayListOf<Data>()
 
-            val mediaList = list.filter { (it.media_type == "IMAGE" || it.media_type == "CAROUSEL_ALBUM") }
+            val mediaList =
+                list.filter { (it.media_type == "IMAGE" || it.media_type == "CAROUSEL_ALBUM") }
             for (item in mediaList) {
                 if (item.media_type == "IMAGE")
                     filterList.add(item)

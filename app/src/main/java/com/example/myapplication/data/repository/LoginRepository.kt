@@ -1,13 +1,15 @@
 package com.example.myapplication.data.repository
 
-import com.example.myapplication.data.api.login.ApiHelperLogin
+import com.example.myapplication.data.model.Token
 
-class LoginRepository(private val apiHelperLogin: ApiHelperLogin) {
+interface LoginRepository {
 
-    suspend fun getToken (clientId: Long,
-                          client_secret: String,
-                          grant_type: String,
-                          redirect_uri: String,
-                          code: String) = apiHelperLogin.getToken(clientId, client_secret, grant_type, redirect_uri, code)
+    suspend fun getToken(
+        clientId: Long,
+        client_secret: String,
+        grant_type: String,
+        redirect_uri: String,
+        code: String
+    ): Token
 
 }

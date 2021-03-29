@@ -5,14 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.model.Token
-import com.example.myapplication.data.repository.LoginRepository
+import com.example.myapplication.data.repository.LoginRepositoryImpl
 import com.example.myapplication.utils.Const
 import com.example.myapplication.utils.Resource
 import com.example.myapplication.utils.Status
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val loginRepository: LoginRepository,
+    private val loginRepository: LoginRepositoryImpl,
     private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
