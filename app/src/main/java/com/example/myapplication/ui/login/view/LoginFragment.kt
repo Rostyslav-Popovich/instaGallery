@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.example.myapplication.BuildConfig
-import com.example.myapplication.BuildConfig.instagram_app_id
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentLoginBinding
 import com.example.myapplication.ui.gallery.view.GalleryFragment
@@ -42,7 +41,7 @@ class LoginFragment : Fragment() {
             binding.progressBar.visibility = View.VISIBLE
             binding.buttonLogin.visibility = View.GONE
             binding.webView.visibility = View.VISIBLE
-            binding.webView.loadUrl("https://api.instagram.com/oauth/authorize?client_id=1057098534783422&redirect_uri=https%3A%2F%2Fwww.google.com%2F&scope=user_profile%2Cuser_media&response_type=code")
+            binding.webView.loadUrl("https://api.instagram.com/oauth/authorize?client_id=${BuildConfig.INSTAGRAM_APP_ID}&redirect_uri=https%3A%2F%2Fwww.google.com%2F&scope=user_profile%2Cuser_media&response_type=code")
         }
 
         return binding.root
@@ -77,14 +76,14 @@ class LoginFragment : Fragment() {
         code: String
     ) {
         viewModel.getToken(
-            instagram_app_id.toLong(),
-            BuildConfig.clientSecret,
+            BuildConfig.INSTAGRAM_APP_ID.toLong(),
+            BuildConfig.CLIENT_SECRET,
             "authorization_code",
             "https://www.google.com/",
             code
         )
 
-        viewModel.liveData.observe(this, {
+        viewModel.liveData.observe(viewLifecycleOwner, {
             when (it.status) {
                 Status.SUCCESS -> {
                     requireActivity().supportFragmentManager.commit {

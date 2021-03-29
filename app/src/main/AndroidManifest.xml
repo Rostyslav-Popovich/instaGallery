@@ -24,7 +24,7 @@
         </activity>
 
         <meta-data android:name="com.facebook.sdk.ApplicationId"
-            android:value="1433972743633299"/>
+            android:value="${FACEBOOK_APP_ID}"/>
     </application>
 
 </manifest>

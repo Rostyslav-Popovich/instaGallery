@@ -18,9 +18,9 @@ android {
 
         buildConfigField "String", "AUTH_URL", '"https://api.instagram.com/"'
         buildConfigField "String", "MEDIA_URL", '"https://graph.instagram.com/"'
-        buildConfigField "String", "clientSecret", '"2fcbe9b28fda739eee21ba4e8ac3db23"'
-        buildConfigField "String", "instagram_app_id", '"1057098534783422"'
-        manifestPlaceholders = [facebook_app_id: "1433972743633299"]
+        buildConfigField "String", "CLIENT_SECRET", '"2fcbe9b28fda739eee21ba4e8ac3db23"'
+        buildConfigField "String", "INSTAGRAM_APP_ID", '"1057098534783422"'
+        manifestPlaceholders = [FACEBOOK_APP_ID: "1433972743633299"]
     }
 
     buildTypes {
@@ -50,7 +50,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.fragment:fragment-ktx:1.3.1'
+    implementation 'androidx.fragment:fragment-ktx:1.3.2'
 
     implementation 'androidx.paging:paging-runtime-ktx:2.1.2'
 
@@ -63,9 +63,9 @@ dependencies {
     //LifeCycle
     implementation 'android.arch.lifecycle:extensions:2.2.0'
     kapt 'android.arch.lifecycle:compiler:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-common:2.3.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime:2.3.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.0'
+    implementation 'androidx.lifecycle:lifecycle-common:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
 
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
