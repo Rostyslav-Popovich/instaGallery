@@ -26,14 +26,14 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class LoginFragment : Fragment() {
 
     private val viewModel: LoginViewModel by viewModel()
-    private lateinit var binding: FragmentLoginBinding
-
+    private var _binding: FragmentLoginBinding?=null
+    private val binding get() = _binding!!
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentLoginBinding.inflate(layoutInflater)
+        _binding = FragmentLoginBinding.inflate(layoutInflater)
         (activity as AppCompatActivity?)!!.findViewById<TextView>(R.id.title).text =
             getString(R.string.txt_login)
         setupWebView()
@@ -101,5 +101,10 @@ class LoginFragment : Fragment() {
                 }
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding=null
     }
 }

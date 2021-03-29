@@ -34,7 +34,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
 
     private val viewModel: GalleryViewModel by viewModel()
-    private lateinit var binding: FragmentGalleryBinding
+    private var _binding: FragmentGalleryBinding?=null
+    private val binding get() = _binding!!
     private val preferences: SharedPreferences by inject()
     private lateinit var adapter: GalleryAdapter
 
@@ -43,7 +44,7 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentGalleryBinding.inflate(layoutInflater)
+        _binding = FragmentGalleryBinding.inflate(layoutInflater)
 
         setupUI()
 
@@ -133,6 +134,11 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
             addSharedElement(imageView, ViewCompat.getTransitionName(imageView)!!)
             addToBackStack("detail")
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding=null
     }
 
 }

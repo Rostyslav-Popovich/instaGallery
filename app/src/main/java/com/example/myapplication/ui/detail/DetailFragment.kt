@@ -16,14 +16,15 @@ import com.example.myapplication.databinding.FragmentDetailBinding
 
 class DetailFragment(val data: Data, private val transitionName: String?) : Fragment() {
 
-    private lateinit var binding: FragmentDetailBinding
+    private var _binding: FragmentDetailBinding?=null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDetailBinding.inflate(layoutInflater)
+        _binding = FragmentDetailBinding.inflate(layoutInflater)
         (activity as AppCompatActivity?)!!.findViewById<TextView>(R.id.title).text = data.id
 
         //postponeEnterTransition(250,TimeUnit.MILLISECONDS)
@@ -39,5 +40,10 @@ class DetailFragment(val data: Data, private val transitionName: String?) : Frag
             .load(data.media_url)
             .into(binding.image)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
