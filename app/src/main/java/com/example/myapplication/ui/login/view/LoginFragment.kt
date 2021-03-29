@@ -25,6 +25,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : Fragment() {
 
+    private val TAG = LoginFragment::class.simpleName
     private val viewModel: LoginViewModel by viewModel()
     private var _binding: FragmentLoginBinding?=null
     private val binding get() = _binding!!
@@ -84,8 +85,8 @@ class LoginFragment : Fragment() {
             code
         )
 
-        viewModel.liveData.observe(viewLifecycleOwner, {
-            when (it.status) {
+        viewModel.statusLiveData.observe(viewLifecycleOwner, {
+            when (it) {
                 Status.SUCCESS -> {
                     binding.webView.visibility = View.GONE
                     binding.progressBar.visibility = View.GONE
@@ -96,12 +97,12 @@ class LoginFragment : Fragment() {
                     }
                 }
                 Status.ERROR -> {
-                    Log.d("LOGIN_ACTIVITY: ", it.message.toString())
                     binding.webView.visibility = View.GONE
                 }
                 Status.LOADING -> {
                     binding.progressBar.visibility = View.VISIBLE
                 }
+                else-> Log.d(TAG,"some error")
             }
         })
     }

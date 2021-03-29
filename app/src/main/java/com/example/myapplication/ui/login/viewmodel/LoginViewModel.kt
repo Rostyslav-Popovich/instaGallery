@@ -14,7 +14,8 @@ class LoginViewModel(
     private val sharedPreferences: SharedPreferences
 ) : BaseViewModel() {
 
-    val liveData = MutableLiveData<Resource<Token>>()
+    val statusLiveData=MutableLiveData<Status>()
+    val liveData = MutableLiveData<Token>()
 
     fun getToken(
         clientId: Long,
@@ -23,15 +24,10 @@ class LoginViewModel(
         redirect_uri: String,
         code: String
     ) {
-        liveData.value = Resource(Status.LOADING, null, null)
+        statusLiveData.value=Status.LOADING
         launch(
             {
-                liveData.postValue(
-                    Resource.error(
-                        data = null,
-                        message = it.message ?: "Error Occurred!"
-                    )
-                )
+                statusLiveData.postValue(Status.ERROR)
             },
             null,
 
@@ -47,7 +43,8 @@ class LoginViewModel(
                 editor.putString(Const.APP_PREFS_TOKEN, token.access_token)
                 editor.apply()
 
-                liveData.postValue(Resource.success(data = token))
+                liveData.postValue(token)
+                statusLiveData.postValue(Status.SUCCESS)
             }
 
         )
