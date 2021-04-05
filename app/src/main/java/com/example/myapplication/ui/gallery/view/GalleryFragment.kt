@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.R
 import com.example.myapplication.data.model.Data
-import com.example.myapplication.data.model.Error
 import com.example.myapplication.databinding.FragmentGalleryBinding
 import com.example.myapplication.ui.detail.DetailFragment
 import com.example.myapplication.ui.gallery.view.GalleryAdapter.Companion.TYPE_DATA
@@ -31,10 +30,10 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
+class GalleryFragment : Fragment(), GalleryAdapter.OnItemClickListener {
 
     private val viewModel: GalleryViewModel by viewModel()
-    private var _binding: FragmentGalleryBinding?=null
+    private var _binding: FragmentGalleryBinding? = null
     private val binding get() = _binding!!
     private val preferences: SharedPreferences by inject()
     private lateinit var adapter: GalleryAdapter
@@ -65,7 +64,8 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
     }
 
     private fun setupUI() {
-        (activity as AppCompatActivity?)!!.findViewById<TextView>(R.id.title).text = getString(R.string.title_gallery)
+        (activity as AppCompatActivity?)!!.findViewById<TextView>(R.id.title).text =
+            getString(R.string.title_gallery)
         val gridLayoutManager = GridLayoutManager(context, 2)
         gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
@@ -93,32 +93,31 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
         field: String,
         after: String
     ) {
-        viewModel.getGallery(token, field, after).observe(requireActivity(), {
-            it?.let { resource ->
-                when (resource.status) {
-                    Status.SUCCESS -> {
-                        binding.recyclerView.visibility = View.VISIBLE
-                        binding.progressBar.visibility = View.GONE
-                        binding.swipe.isRefreshing = false
-                        resource.data?.let { data ->
-                            adapter.apply {
-                                addMedia(it.data as List<Data>)
-                                notifyDataSetChanged()
-                            }
-                        }
+
+        viewModel.getGallery(token, field, after)
+
+
+        viewModel.statusLiveData.observe(viewLifecycleOwner, {
+            when (it) {
+                Status.SUCCESS -> {
+                    binding.recyclerView.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.GONE
+                    binding.swipe.isRefreshing = false
+                    adapter.apply {
+                        addMedia(viewModel.successLiveData.value as List<Data>)
+                        notifyDataSetChanged()
                     }
-                    Status.ERROR -> {
-                        binding.recyclerView.visibility = View.VISIBLE
-                        binding.swipe.isRefreshing = false
-                        //progressBar.visibility = View.GONE
-                        Log.d("GALLERY_FRAGMENT: ", (it.data as Error).error.type)
-                        if (it.data.error.type == "OAuthException") {
-                            requireActivity().onBackPressed()
-                        }
-                    }
-                    Status.LOADING -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
+                }
+
+                Status.ERROR -> {
+                    binding.recyclerView.visibility = View.VISIBLE
+                    binding.swipe.isRefreshing = false
+                    //progressBar.visibility = View.GONE
+                    Log.d("GALLERY_FRAGMENT: ", (viewModel.errorLiveData.value!!.error.message))
+                    requireActivity().onBackPressed()
+                }
+                Status.LOADING -> {
+                    binding.progressBar.visibility = View.VISIBLE
                 }
             }
         })
@@ -128,8 +127,8 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
     override fun onItemClick(data: Data, imageView: ImageView) {
 
         requireActivity().supportFragmentManager.commit {
-            val detailFragment=DetailFragment(data,imageView.transitionName)
-            replace(R.id.container,detailFragment)
+            val detailFragment = DetailFragment(data, imageView.transitionName)
+            replace(R.id.container, detailFragment)
             setReorderingAllowed(true)
             addSharedElement(imageView, ViewCompat.getTransitionName(imageView)!!)
             addToBackStack("detail")
@@ -138,7 +137,7 @@ class GalleryFragment : Fragment(),GalleryAdapter.OnItemClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding=null
+        _binding = null
     }
 
 }

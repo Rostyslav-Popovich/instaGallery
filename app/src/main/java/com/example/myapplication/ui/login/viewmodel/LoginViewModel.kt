@@ -3,18 +3,17 @@ package com.example.myapplication.ui.login.viewmodel
 import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.data.model.Token
-import com.example.myapplication.data.repository.LoginRepositoryImpl
+import com.example.myapplication.data.repository.LoginRepository
 import com.example.myapplication.ui.base.BaseViewModel
 import com.example.myapplication.utils.Const
-import com.example.myapplication.utils.Resource
 import com.example.myapplication.utils.Status
 
 class LoginViewModel(
-    private val loginRepository: LoginRepositoryImpl,
+    private val loginRepository: LoginRepository,
     private val sharedPreferences: SharedPreferences
 ) : BaseViewModel() {
 
-    val statusLiveData=MutableLiveData<Status>()
+    val statusLiveData = MutableLiveData<Status>()
     val liveData = MutableLiveData<Token>()
 
     fun getToken(
@@ -24,7 +23,7 @@ class LoginViewModel(
         redirect_uri: String,
         code: String
     ) {
-        statusLiveData.value=Status.LOADING
+        statusLiveData.value = Status.LOADING
         launch(
             {
                 statusLiveData.postValue(Status.ERROR)

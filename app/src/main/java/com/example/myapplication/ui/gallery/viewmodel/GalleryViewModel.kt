@@ -1,27 +1,40 @@
 package com.example.myapplication.ui.gallery.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.data.model.Data
 import com.example.myapplication.data.model.Error
-import com.example.myapplication.data.repository.MediaRepositoryImpl
-import com.example.myapplication.utils.Resource
+import com.example.myapplication.data.repository.MediaRepository
+import com.example.myapplication.ui.base.BaseViewModel
+import com.example.myapplication.utils.Status
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
 import retrofit2.HttpException
 
-class GalleryViewModel(private val mediaRepository: MediaRepositoryImpl) : ViewModel() {
+class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewModel() {
 
+    val statusLiveData = MutableLiveData<Status>()
+    val successLiveData = MutableLiveData<List<Data>>()
+    val errorLiveData = MutableLiveData<Error>()
     fun getGallery(
         token: String,
         field: String,
         after: String
-    ) = liveData(Dispatchers.IO) {
-        emit(Resource.loading(data = null))
-        try {
-            emit(
-                Resource.success(
-                    data = getFilteredList(
+    ) {
+        statusLiveData.value = Status.LOADING
+        launch(
+            {
+                when (it) {
+                    is HttpException -> {
+                        val errorResponse = convertErrorBody(it)
+                        errorLiveData.postValue(errorResponse!!)
+                        statusLiveData.postValue(Status.ERROR)
+                    }
+                }
+            },
+            null,
+
+            {
+                successLiveData.postValue(
+                    getFilteredList(
                         mediaRepository.getMediaList(
                             token,
                             field,
@@ -29,21 +42,9 @@ class GalleryViewModel(private val mediaRepository: MediaRepositoryImpl) : ViewM
                         ).data
                     )
                 )
-            )
-        } catch (throwable: Throwable) {
-            when (throwable) {
-                is HttpException -> {
-                    val errorResponse = convertErrorBody(throwable)
-                    emit(
-                        Resource.error(
-                            data = errorResponse,
-                            message = throwable.message ?: "Error Occurred!"
-                        )
-                    )
-                }
+                statusLiveData.postValue(Status.SUCCESS)
             }
-
-        }
+        )
     }
 
     private fun convertErrorBody(throwable: HttpException): Error? {

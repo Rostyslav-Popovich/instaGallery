@@ -1,6 +1,8 @@
 package com.example.myapplication.ui.gallery.view
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.ViewCompat
@@ -52,6 +54,7 @@ class GalleryAdapter(private val data: ArrayList<Data>,
             data.size
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is DataViewHolder) {
             Glide.with(ItemGalleryBinding.bind(holder.itemView).image.context)
@@ -59,9 +62,15 @@ class GalleryAdapter(private val data: ArrayList<Data>,
                 .into(ItemGalleryBinding.bind(holder.itemView).image)
             ViewCompat.setTransitionName(ItemGalleryBinding.bind(holder.itemView).image,data[position].id)
 
-            holder.itemView.setOnClickListener {
-                onItemClickListener.onItemClick(data[position],ItemGalleryBinding.bind(holder.itemView).image)
+            holder.itemView.setOnTouchListener{ _, event ->
+                if (event.action == MotionEvent.ACTION_UP&&ItemGalleryBinding.bind(holder.itemView).motionLayout.progress==0f) {
+                    onItemClickListener.onItemClick(data[position],ItemGalleryBinding.bind(holder.itemView).image)
+                }
+                false
             }
+            /*holder.itemView.setOnClickListener {
+                onItemClickListener.onItemClick(data[position],ItemGalleryBinding.bind(holder.itemView).image)
+            }*/
         }
     }
 
