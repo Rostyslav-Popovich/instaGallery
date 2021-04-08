@@ -3,6 +3,7 @@ package com.example.myapplication.ui.gallery.viewmodel
 import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.data.model.Data
 import com.example.myapplication.data.model.Error
+import com.example.myapplication.data.model.Paging
 import com.example.myapplication.data.repository.MediaRepository
 import com.example.myapplication.ui.base.BaseViewModel
 import com.example.myapplication.utils.Status
@@ -13,10 +14,11 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewM
 
     val statusLiveData = MutableLiveData<Status>()
     val successLiveData = MutableLiveData<List<Data>>()
+    val pagingLiveData = MutableLiveData<Paging>()
     val errorLiveData = MutableLiveData<Error>()
+
     fun getGallery(
         token: String,
-        field: String,
         after: String
     ) {
         statusLiveData.value = Status.LOADING
@@ -33,15 +35,17 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewM
             null,
 
             {
+                val gallery = mediaRepository.getMediaList(
+                    token,
+                    after
+                )
+
                 successLiveData.postValue(
                     getFilteredList(
-                        mediaRepository.getMediaList(
-                            token,
-                            field,
-                            after
-                        ).data
+                        gallery.data
                     )
                 )
+                pagingLiveData.postValue(gallery.paging)
                 statusLiveData.postValue(Status.SUCCESS)
             }
         )

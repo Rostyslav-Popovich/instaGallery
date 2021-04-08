@@ -6,7 +6,6 @@ class MediaRepositoryImpl(private val apiHelperMedia: ApiHelperMedia) : MediaRep
 
     override suspend fun getMediaList(
         token: String,
-        field: String,
         after: String
-    ) = apiHelperMedia.getMediaList(token, field, after)
+    ) = apiHelperMedia.getMediaList(token, after)
 }
