@@ -8,6 +8,7 @@ import com.example.myapplication.data.repository.MediaRepository
 import com.example.myapplication.ui.base.BaseViewModel
 import com.example.myapplication.utils.Status
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.*
 import retrofit2.HttpException
 
 class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewModel() {
@@ -35,18 +36,18 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewM
             null,
 
             {
-                val gallery = mediaRepository.getMediaList(
+                mediaRepository.getMediaList(
                     token,
                     after
-                )
-
-                successLiveData.postValue(
-                    getFilteredList(
-                        gallery.data
+                ).collect{
+                    successLiveData.postValue(
+                        getFilteredList(
+                            it.data
+                        )
                     )
-                )
-                pagingLiveData.postValue(gallery.paging)
-                statusLiveData.postValue(Status.SUCCESS)
+                    pagingLiveData.postValue(it.paging)
+                    statusLiveData.postValue(Status.SUCCESS)
+                }
             }
         )
     }
