@@ -8,7 +8,7 @@ import com.example.myapplication.data.repository.MediaRepository
 import com.example.myapplication.ui.base.BaseViewModel
 import com.example.myapplication.utils.Status
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
 import retrofit2.HttpException
 
 class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewModel() {
@@ -16,7 +16,7 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewM
     val statusLiveData = MutableLiveData<Status>()
     val successLiveData = MutableLiveData<List<Data>>()
     val pagingLiveData = MutableLiveData<Paging>()
-    val errorLiveData = MutableLiveData<Error>()
+    val errorLiveData = MutableLiveData<Error?>()
 
     fun getGallery(
         token: String,
@@ -28,8 +28,10 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewM
                 when (it) {
                     is HttpException -> {
                         val errorResponse = convertErrorBody(it)
-                        errorLiveData.postValue(errorResponse!!)
-                        statusLiveData.postValue(Status.ERROR)
+                        if (errorResponse != null) {
+                            errorLiveData.postValue(errorResponse)
+                            statusLiveData.postValue(Status.ERROR)
+                        }
                     }
                 }
             },
@@ -39,7 +41,7 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewM
                 mediaRepository.getMediaList(
                     token,
                     after
-                ).collect{
+                ).collect {
                     successLiveData.postValue(
                         getFilteredList(
                             it.data
@@ -62,7 +64,7 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewM
         }
     }
 
-    private fun getFilteredList(list: List<Data>?): List<Data> {
+    private fun getFilteredList(list: List<Data>): List<Data> {
         return if (list.isNullOrEmpty())
             emptyList()
         else {
@@ -74,9 +76,10 @@ class GalleryViewModel(private val mediaRepository: MediaRepository) : BaseViewM
                 if (item.media_type == "IMAGE")
                     filterList.add(item)
                 else {
-                    item.children!!.data.filter { it.media_type == "IMAGE" || it.media_type == "CAROUSEL_ALBUM" }
+                    item.children?.data?.filter { it.media_type == "IMAGE" || it.media_type == "CAROUSEL_ALBUM" }
                         .let {
-                            filterList.addAll(it)
+                            if (it != null)
+                                filterList.addAll(it)
                         }
                 }
             }

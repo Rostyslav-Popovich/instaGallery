@@ -34,7 +34,7 @@ class GalleryFragment : Fragment(), GalleryAdapter.OnItemClickListener {
     private val TAG = GalleryFragment::class.simpleName
     private val viewModel: GalleryViewModel by viewModel()
     private var _binding: FragmentGalleryBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding
     private val preferences: SharedPreferences by inject()
     private lateinit var adapter: GalleryAdapter
     private var isLoading = false
@@ -46,7 +46,7 @@ class GalleryFragment : Fragment(), GalleryAdapter.OnItemClickListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding = FragmentGalleryBinding.inflate(layoutInflater)
 
         setupUI()
@@ -55,7 +55,7 @@ class GalleryFragment : Fragment(), GalleryAdapter.OnItemClickListener {
             preferences.getString(APP_PREFS_TOKEN, "").toString()
         )
 
-        binding.swipe.setOnRefreshListener {
+        binding?.swipe?.setOnRefreshListener {
             isLoading = false
             isLastPage = false
             adapter.clearMedia()
@@ -63,29 +63,29 @@ class GalleryFragment : Fragment(), GalleryAdapter.OnItemClickListener {
                 preferences.getString(APP_PREFS_TOKEN, "").toString(),
                 ""
             )
-            binding.swipe.isRefreshing = false
+            binding?.swipe?.isRefreshing = false
         }
 
-        return binding.root
+        return binding?.root
     }
 
     private fun setupUI() {
-        (activity as AppCompatActivity?)!!.findViewById<TextView>(R.id.title).text =
+        (activity as AppCompatActivity?)?.findViewById<TextView>(R.id.title)?.text =
             getString(R.string.title_gallery)
         val gridLayoutManager = GridLayoutManager(context, 2)
 
-        binding.recyclerView.layoutManager = gridLayoutManager
+        binding?.recyclerView?.layoutManager = gridLayoutManager
 
         adapter = GalleryAdapter(arrayListOf(), this)
-        binding.recyclerView.addItemDecoration(
+        binding?.recyclerView?.addItemDecoration(
             DividerItemDecoration(
-                binding.recyclerView.context,
-                (binding.recyclerView.layoutManager as LinearLayoutManager).orientation
+                binding?.recyclerView?.context,
+                (binding?.recyclerView?.layoutManager as LinearLayoutManager).orientation
             )
         )
-        binding.recyclerView.adapter = adapter
+        binding?.recyclerView?.adapter = adapter
 
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        binding?.recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -101,13 +101,15 @@ class GalleryFragment : Fragment(), GalleryAdapter.OnItemClickListener {
                 val shouldPaginate =
                     isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning && isScrolling
                 if (shouldPaginate) {
-                    viewModel.getGallery(
-                        preferences.getString(APP_PREFS_TOKEN, "").toString(),
-                        viewModel.pagingLiveData.value!!.cursors.after
-                    )
+                    viewModel.pagingLiveData.value?.cursors?.after?.let {
+                        viewModel.getGallery(
+                            preferences.getString(APP_PREFS_TOKEN, "").toString(),
+                            it
+                        )
+                    }
                     isScrolling = false
                 } else {
-                    binding.recyclerView.setPadding(0, 0, 0, 0)
+                    binding?.recyclerView?.setPadding(0, 0, 0, 0)
                 }
 
             }
@@ -137,25 +139,30 @@ class GalleryFragment : Fragment(), GalleryAdapter.OnItemClickListener {
                         adapter.addMedia(viewModel.successLiveData.value as List<Data>)
                         galleryDiffResult.dispatchUpdatesTo(adapter)
                         isLastPage = false
-                        binding.recyclerView.visibility = View.VISIBLE
-                        binding.progressBar.visibility = View.GONE
+                        binding?.recyclerView?.visibility = View.VISIBLE
+                        binding?.progressBar?.visibility = View.GONE
                     } else {
-                        binding.progressBar.visibility = View.GONE
+                        binding?.progressBar?.visibility = View.GONE
                         isLastPage = true
                     }
                 }
 
                 Status.ERROR -> {
                     isLoading = false
-                    binding.recyclerView.visibility = View.VISIBLE
+                    binding?.recyclerView?.visibility = View.VISIBLE
                     //progressBar.visibility = View.GONE
-                    Log.d("GALLERY_FRAGMENT: ", (viewModel.errorLiveData.value!!.error.message))
+                    viewModel.errorLiveData.value?.error?.let { error ->
+                        Log.d(
+                            "GALLERY_FRAGMENT: ",
+                            error.message
+                        )
+                    }
                     requireActivity().onBackPressed()
                 }
 
                 Status.LOADING -> {
                     isLoading = true
-                    binding.progressBar.visibility = View.VISIBLE
+                    binding?.progressBar?.visibility = View.VISIBLE
                 }
                 else -> Log.d(TAG, "some error")
             }
@@ -170,7 +177,7 @@ class GalleryFragment : Fragment(), GalleryAdapter.OnItemClickListener {
             val detailFragment = DetailFragment(data, imageView.transitionName)
             replace(R.id.container, detailFragment)
             setReorderingAllowed(true)
-            addSharedElement(imageView, ViewCompat.getTransitionName(imageView)!!)
+            ViewCompat.getTransitionName(imageView)?.let { addSharedElement(imageView, it) }
             addToBackStack("detail")
         }
     }

@@ -27,37 +27,38 @@ class LoginFragment : Fragment() {
 
     private val TAG = LoginFragment::class.simpleName
     private val viewModel: LoginViewModel by viewModel()
-    private var _binding: FragmentLoginBinding?=null
-    private val binding get() = _binding!!
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding = FragmentLoginBinding.inflate(layoutInflater)
-        (activity as AppCompatActivity?)!!.findViewById<TextView>(R.id.title).text =
+        (activity as AppCompatActivity?)?.findViewById<TextView>(R.id.title)?.text =
             getString(R.string.txt_login)
         setupWebView()
-        binding.buttonLogin.setOnClickListener {
-            binding.progressBar.visibility = View.VISIBLE
-            binding.buttonLogin.visibility = View.GONE
-            binding.webView.visibility = View.VISIBLE
-            binding.webView.loadUrl("https://api.instagram.com/oauth/authorize?client_id=${BuildConfig.INSTAGRAM_APP_ID}&redirect_uri=https%3A%2F%2Fwww.google.com%2F&scope=user_profile%2Cuser_media&response_type=code")
+
+        binding?.buttonLogin?.setOnClickListener {
+            binding?.progressBar?.visibility = View.VISIBLE
+            binding?.buttonLogin?.visibility = View.GONE
+            binding?.webView?.visibility = View.VISIBLE
+            binding?.webView?.loadUrl("https://api.instagram.com/oauth/authorize?client_id=${BuildConfig.INSTAGRAM_APP_ID}&redirect_uri=https%3A%2F%2Fwww.google.com%2F&scope=user_profile%2Cuser_media&response_type=code")
         }
 
-        return binding.root
+        return binding?.root
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
-        binding.webView.settings.javaScriptEnabled = true
-        binding.webView.webViewClient = object : WebViewClient() {
+        binding?.webView?.settings?.javaScriptEnabled = true
+        binding?.webView?.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 view.loadUrl(url)
                 val uri: Uri = Uri.parse(url)
                 val chapter = uri.getQueryParameter("code")
                 if (chapter != null) {
-                    binding.progressBar.visibility = View.VISIBLE
+                    binding?.progressBar?.visibility = View.VISIBLE
 
                     setupObservers(
                         chapter
@@ -68,8 +69,8 @@ class LoginFragment : Fragment() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                if (_binding!=null)
-                    binding.progressBar.visibility = View.GONE
+                if (_binding != null)
+                    binding?.progressBar?.visibility = View.GONE
             }
         }
     }
@@ -88,8 +89,8 @@ class LoginFragment : Fragment() {
         viewModel.statusLiveData.observe(viewLifecycleOwner, {
             when (it) {
                 Status.SUCCESS -> {
-                    binding.webView.visibility = View.GONE
-                    binding.progressBar.visibility = View.GONE
+                    binding?.webView?.visibility = View.GONE
+                    binding?.progressBar?.visibility = View.GONE
                     requireActivity().supportFragmentManager.commit {
                         replace<GalleryFragment>(R.id.container)
                         setReorderingAllowed(true)
@@ -97,18 +98,18 @@ class LoginFragment : Fragment() {
                     }
                 }
                 Status.ERROR -> {
-                    binding.webView.visibility = View.GONE
+                    binding?.webView?.visibility = View.GONE
                 }
                 Status.LOADING -> {
-                    binding.progressBar.visibility = View.VISIBLE
+                    binding?.progressBar?.visibility = View.VISIBLE
                 }
-                else-> Log.d(TAG,"some error")
+                else -> Log.d(TAG, "some error")
             }
         })
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding=null
+        _binding = null
     }
 }

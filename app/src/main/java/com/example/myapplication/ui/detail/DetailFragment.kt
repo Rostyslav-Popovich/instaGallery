@@ -16,30 +16,31 @@ import com.example.myapplication.databinding.FragmentDetailBinding
 
 class DetailFragment(val data: Data, private val transitionName: String?) : Fragment() {
 
-    private var _binding: FragmentDetailBinding?=null
-    private val binding get() = _binding!!
+    private var _binding: FragmentDetailBinding? = null
+    private val binding get() = _binding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding = FragmentDetailBinding.inflate(layoutInflater)
-        (activity as AppCompatActivity?)!!.findViewById<TextView>(R.id.title).text = data.id
+        (activity as AppCompatActivity?)?.findViewById<TextView>(R.id.title)?.text = data.id
 
         //postponeEnterTransition(250,TimeUnit.MILLISECONDS)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(
                 android.R.transition.move
             )
-            binding.image.transitionName = transitionName
+            binding?.image?.transitionName = transitionName
         }
 
-
-        Glide.with(binding.image.context)
-            .load(data.media_url)
-            .into(binding.image)
-        return binding.root
+        binding?.image?.let {
+            Glide.with(it.context)
+                .load(data.media_url)
+                .into(it)
+        }
+        return binding?.root
     }
 
     override fun onDestroyView() {
